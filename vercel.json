@@ -1,0 +1,14 @@
+{
+    "builds": [
+      {
+        "src": "xpress_learner/wsgi.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "xpress_learner/wsgi.py"
+      }
+    ]
+}
