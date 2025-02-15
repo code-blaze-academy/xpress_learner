@@ -17,6 +17,6 @@ six
 cloudinary
 python-dotenv
 django-cloudinary-storage
-psycopg-binary
-psycopg2
+# psycopg-binary
+# psycopg2
 # dj3-cloudinary-storage
