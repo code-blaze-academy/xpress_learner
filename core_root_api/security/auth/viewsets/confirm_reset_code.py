@@ -14,7 +14,7 @@ class ConfirmResetCodeViewset(viewsets.ModelViewSet):
     queryset=CodeGenerator.objects.all()
     http_method_names=['post']
     
-    # @action(detail=False, url_path='verify/(?P<email>[^/]+)')
+   
     @swagger_auto_schema(operation_description="Reset Password",)
     def create(self,request):
         serializer=self.serializer_class(data=request.data)
@@ -22,13 +22,13 @@ class ConfirmResetCodeViewset(viewsets.ModelViewSet):
         print(email)
         if not email:
             return Response(
-                {"is_active": False, "status": False, "error_msg": "No email query"},
+                {"is_active": False, "status": False, "error": "No email query"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         user = User.objects.filter(email=email).first()
         if not user:
             return Response(
-                {"status": False, "active": False, "error_msg": f"{email} does not exists"},
+                {"status": False, "active": False, "error": f"{email} does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -37,12 +37,14 @@ class ConfirmResetCodeViewset(viewsets.ModelViewSet):
                 code_authentication=serializer.validated_data['code_authentication']
                 try:
                     current_user=CodeGenerator.objects.get(code_authentication=code_authentication, user=user)
-                    return Response({"status":True,"success_msg":f"Password reset successfully for {email}"},status=status.HTTP_200_OK)
+                    current_user.code_authentication=""
+                    current_user.save()
+                    return Response({"status":True,"message":f" successfully confirmed the code for {email}"},status=status.HTTP_200_OK)
                 except CodeGenerator.DoesNotExist:
-                    return Response({"status":False,"error_msg":"The code provided does not exist"})
+                    return Response({"status":False,"error":"The code provided does not exist"})
         except Exception as e:
             return Response(
-                {"status":False,"error_msg":f"Your request cant be processed now, check your network and try again. E: {e}"},
+                {"status":False,"error":f"Your request cant be processed now, check your network and try again. E: {e}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
     
