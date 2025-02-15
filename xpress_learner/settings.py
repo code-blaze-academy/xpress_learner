@@ -35,90 +35,53 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-8q-fjlak)r8at$$kj1cpd-!izh&4m!!km&5$lql-drcmd83r28"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
-
+# DEBUG=False
+ALLOWED_HOSTS = ['https://nexusbank-backend.onrender.com/','*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    # Third-party Applications
-    "adrf",
-    "silk",
-    "geoip2",
-    "daphne",
-    "drf_yasg",
-    "channels",
-    "djstripe",  
-    "cloudinary",
-    "crispy_forms",
-    "dj_rest_auth",
-    "rest_framework",
-    "background_task",
-    "multiselectfield",
-    "crispy_bootstrap4",
-    "cloudinary_storage",
-    "rest_framework.authtoken",
-    "rest_framework_simplejwt",
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'drf_yasg',
+    'cloudinary',
+    'cloudinary_storage',
+    'core_root_api',
+    # 'core_root_api.job_api',
+    'core_root_api.security',
+    'core_root_api.security.auth',
+    'core_root_api.security.user',
     
-    # Built-in Application
-    "django.contrib.gis",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
+    # 'job.apps.JobConfig',
     
-    # Custom Applications
-    "core_app_root",
-    "core_app_root.security",
-    "core_app_root.image_kyc",
-    "core_app_root.subscription",
-    "core_app_root.match_friends",
-    "core_app_root.security.user",
-    "core_app_root.security.auth",
-    "core_app_root.apple_gifting",
-    "core_app_root.chat_management",
-    "core_app_root.home_management",
-    "core_app_root.calls_management",
-    "core_app_root.security.chat_app",
-    "core_app_root.image_recognition",
-    "core_app_root.administration_panel",
-    "core_app_root.user_db_communication",
-    "core_app_root.background_task_scheduler",
-    "core_app_root.administration_panel.security",
-    "core_app_root.security.settings_and_privacy",
-    "core_app_root.administration_panel.dashboard",
-    "core_app_root.administration_panel.security.auth",
-    "core_app_root.administration_panel.security.user",
-    "core_app_root.security.user.user_chatting_section",
-    # "core_app_root.security.friends",
-    # "core_app_root.security.chat"
     
 ]
 
 MIDDLEWARE = [
-    # 'core_app_root.middleware.SubdomainDatabaseMiddleware',
-    'silk.middleware.SilkyMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'core_app_root.middleware.USOnlyMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
 ]
 
 
-ROOT_URLCONF = "applegenie.urls"
+ROOT_URLCONF = "xpress_learner.urls"
 
 TEMPLATES = [
     {
@@ -135,9 +98,9 @@ TEMPLATES = [
         },
     },
 ]
-ASGI_APPLICATION = 'applegenie.asgi.application'
+ASGI_APPLICATION = 'xpress_learner.asgi.application'
 
-WSGI_APPLICATION = "applegenie.wsgi.application"
+WSGI_APPLICATION = "xpress_learner.wsgi.application"
 
 # CHANNEL_LAYERS = {
 #     'default': {
@@ -148,7 +111,7 @@ WSGI_APPLICATION = "applegenie.wsgi.application"
 #     },
 # }
 
-AUTH_USER_MODEL="core_app_root_security_user.User"
+AUTH_USER_MODEL="core_root_api_security_user.User"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -161,69 +124,60 @@ DATABASES = {
 }
 
 
-# def get_database_config(subdomain):
-#     if subdomain == 'sandbox':
-#         return DATABASES['test']
-#     elif subdomain == 'backend':
-#         return DATABASES['production']
-#     else:
-#         return DATABASES['default']
-# DATABASES = {
-#     'default': {
-#         # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-#         'NAME': 'finderskeeperstestdb',
-#         'USER': 'finderskeeperstestdbuser',
-#         'PASSWORD': 'APPLEmatch24!',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+    'rest_framework.permissions.IsAuthenticated',
+    'core_root_api.security.user.permissions.IsAccountNotFrozen',
+    # 'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework.authentication.BasicAuthentication',
+    ),
+
+    'DEFAULT_FILTER_BACKENDS':
+    ['django_filters.rest_framework.DjangoFilterBackend'],
+}
+DJOSER = {
+    "USER_ID_FIELD": "username",
+    "LOGIN_FIELD": "email",
+    "SEND_ACTIVATION_EMAIL": 
+    True,
+    "ACTIVATION_URL": "activate/{uid}/{token}",
+    "PASSWORD_RESET_CONFIRM_URL": "reset_password/{uid}/{token}", # the reset link 
+    'SERIALIZERS': {
+        'token_create': 'apps.accounts.serializers.CustomTokenCreateSerializer',
+    },
+}
+CORS_ALLOW_ALL_ORIGINS = True
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-EXPOSE_HIDDEN_ENDPOINT = False 
-if not DEBUG:
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "handlers": {
-            "file": {
-                "level": "DEBUG",
-                "class": "logging.FileHandler",
-                "filename": "/home/leorizaserver/applegenie/debug.log",
-            },
-        },
-        "loggers": {
-            "django": {
-                "handlers": ["file"],
-                "level": "DEBUG",
-                "propagate": True,
-            },
-        },
-    }
+
+AUTH_USER_MODEL = 'core_root_api_security_user.User'
+
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = 'en-us'
 
-# TIME_ZONE = "UTC"
-TIME_ZONE = 'America/New_York'
-
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -231,19 +185,22 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# FCM_API_KEY = 'YOUR_FCM_SERVER_KEY'
+STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-STATIC_URL = '/static/'
-# STATICFILES_DIRS=[os.path.join(BASE_DIR,'static'),]
-STATIC_ROOT=os.path.join(BASE_DIR,'static')
-# STATIC_URL = '/static/'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=365 * 100),  # 100 years
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=365 * 100),
+}
 
-MEDIA_URL='media/'
-# MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+MEDIA_URL = '/media/'
 
 # MEDIA_ROOT=os.path.join(BASE_DIR,'media')
 CLOUD_NAME="drlcmhrcg"
@@ -257,160 +214,10 @@ CLOUDINARY_STORAGE = {
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-# STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'core_app_root.security.exception_handler.custom_exception_handler',
-    'DEFAULT_PERMISSION_CLASSES': (
-    'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework_simplejwt.authentication.JWTAuthentication',
-    'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
-    'rest_framework.authentication.SessionAuthentication',
-    'rest_framework.authentication.BasicAuthentication',
-    ),
-
-    'DEFAULT_FILTER_BACKENDS':
-    ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
-    ],
-    # 'DEFAULT_THROTTLE_RATES': {
-    #     'anon': '10/hr',
-    #     'user': '1000/day'
-    # }
-}
-
-# configure Djoser
-DJOSER = {
-    "USER_ID_FIELD": "username",
-    "LOGIN_FIELD": "email",
-    "SEND_ACTIVATION_EMAIL": True,
-    "ACTIVATION_URL": "activate/{uid}/{token}",
-    "PASSWORD_RESET_CONFIRM_URL": "reset_password/{uid}/{token}", # the reset link 
-    'SERIALIZERS': {
-        'token_create': 'apps.accounts.serializers.CustomTokenCreateSerializer',
-    },
-}
-CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-#     "https://react-ts.csb.app",
-#     "https://cbastudyapp.com",
-#     "https://www.cbastudyapp.com",
-#     'http://127.0.0.1:5500',
-#     'http://localhost:8000'
-CRONJOBS = [
-    ('* * * * *', 'core_app_root.my_cron_job.my_cron_job')
-]
-
-# Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-
-CELERY_BEAT_SCHEDULE = {
-    'run-every-minute': {
-        'task': 'core_app_root.tasks.my_cron_job',
-        'schedule': crontab(),  # This runs every minute
-    },
-     "schedule_payment": {
-        "task": "core_app_root.subscription.tasks.schedule_payment",
-        "schedule": crontab(minute="*/1"),
-    },
-     "schedule_payment": {
-         "task": "core_app_root.subscription.tasks.remove_from_diamond",
-         "schedule": crontab(minute="*/1"),
-     }
-}
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'basic',
-            'scheme': 'bearer',
-            'bearerFormat': 'JWT',
-            'description': "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
-        },
-    },
-}
-
-SPECTACULAR_SETTINGS = {
-    'COMPONENT_SPLIT_REQUEST': True
-}
-STRIPE_TEST_PUBLIC_KEY=os.environ['STRIPE_TEST_PUBLIC_KEY']
-STRIPE_TEST_PRIVATE_KEY=os.environ['STRIPE_TEST_SECRET_KEY']
-# STRIPE_WEBHOOK_SECRET=''
-STRIPE_LIVE_MODE = False
-DJSTRIPE_WEBHOOK_SECRET = os.environ['DJSTRIPE_WEBHOOK_SECRET']
-DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
-STRIPE_PRICING_TABLE_ID=os.environ['STRIPE_PRICING_TABLE_ID']
-DJSTRIPE_WEBHOOK_VALIDATION='retrieve_event'
-# '*/2 * * * *' every 2nd minute of each hour.
-# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # new
-SITE_ID = 1 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024 * 1024 # (30MEGABYTES)
 DATA_UPLOAD_MAX_MEMORY_SIZE = FILE_UPLOAD_MAX_MEMORY_SIZE
 
-# Email Setup
-# EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST=os.getenv("EMAIL_HOST")
-EMAIL_PORT=os.getenv("EMAIL_PORT")
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD=os.getenv("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-
-from datetime import timedelta
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=365 * 100),  # 100 years
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=365 * 100),
-}
-
-WEBHOOK_URL="https:/aigenie.applematch.com/subscription/notifications/"
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-PAYPAL_RECIEVER_EMAIL="info@finderskeepers.ai"
-PAYPAL_TEST=True
-CRISPY_TEMPLATE_PACK = "bootstrap4"
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
-
-# Braintree Configuration
-
-BRAINTREE_MERCHANT_ID = os.getenv("BRAINTREE_MERCHANT_ID")
-BRAINTREE_PUBLIC_KEY = os.getenv("BRAINTREE_PUBLIC_KEY")
-BRAINTREE_PRIVATE_KEY = os.getenv("BRAINTREE_PRIVATE_KEY")
-
-# Including the missing security features
-
-# Prevent Iframe embedding
-X_FRAME_OPTIONS = "DENY"
-
-# Enforce HTTPS with HSTS
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-
-# X-XSS-Protection
-SECURE_BROWSER_XSS_FILTER = True
-
-# X-Content-Type-Options
-SECURE_CONTENT_TYPE_NOSNIFF = True
-
-if not DEBUG:
-    IMAGE_CLASSIFIER = pipeline("image-classification", model="Falconsai/nsfw_image_detection")
