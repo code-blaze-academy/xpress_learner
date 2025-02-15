@@ -64,7 +64,6 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
             if password==confirm_password:
                 password_length=int(len(serializer.initial_data['password']))
-                print(password_length)
                 print(type(password_length))
                 error_list={}
                 if not serializer.is_valid():
@@ -72,19 +71,18 @@ class RegisterViewSet(viewsets.ModelViewSet):
                     if User.objects.filter(email=email).exists():
                         # return Response({'message':'User with this email already exists','error':True,'field':'email'},status=status.HTTP_403_FORBIDDEN)
                         error_list['email_error']='User with this email already exists'
+                        return Response({"status":False,"error":error_list['email_error']},status=status.HTTP_403_FORBIDDEN)
                     if password_length<8:
                         # print(password_length)
                         # print(type(password_length))
                         error_list['password_error']='Password should be at least 8 characters'
-
-                    
+                        return Response({'error':error_list['password_error']},status=status.HTTP_406_NOT_ACCEPTABLE)
                     # if User.objects.filter(username=username).exists():
                     #     error_list['username_error']='username exist'
                     # if str(serializer.initial_data['confirm_password'])!=str(serializer.initial_data['password']):
                         # error_list['password_mismatch_error']='Password mismatch for confirm password'
                     
-                    error_list['status']=False
-                    return Response({'error_list':error_list},status=status.HTTP_406_NOT_ACCEPTABLE)
+                    # error_list['status']=False
                 # if serializer.is_valid():
                 else:
 
@@ -165,17 +163,20 @@ class AdminRegisterViewSet(viewsets.ModelViewSet):
         print(type(password_length))
         error_list={}
         if not serializer.is_valid():
+            error_list['status']=False
             print("not valid")
             if User.objects.filter(email=email).exists():
                 error_list['email_error']='User with this email already exists'
+                return Response({'error_list':error_list['email_error']},status=status.HTTP_406_NOT_ACCEPTABLE)
+
             if password_length<8:
                 error_list['password_error']='Password should be at least 8 characters'
-            if User.objects.filter(username=username).exists():
-                error_list['username_error']='username exist'
+                return Response({'error_list':error_list['password_error']},status=status.HTTP_406_NOT_ACCEPTABLE)
+
             if str(serializer.initial_data['password'])!=str(serializer.initial_data['confirm_password']):
                 error_list['error_msg']="Password mismatch"
-            error_list['status']=False
-            return Response({'error_list':error_list},status=status.HTTP_406_NOT_ACCEPTABLE)
+            
+                return Response({'error_list':error_list['error_msg']},status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             print("validated good")
             email=serializer.validated_data['email']
